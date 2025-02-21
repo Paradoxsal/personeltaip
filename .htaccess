@@ -1,0 +1,4 @@
+<IfModule mode_rewrite.c>
+RewritEngine on
+RewriteRule ^(.*)$ public/$1 [l]
+</IfModule>
