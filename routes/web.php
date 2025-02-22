@@ -18,6 +18,8 @@ use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\UserController\UserEditController;
 use App\Http\Controllers\UserHourController;
 use Illuminate\Support\Facades\Route;
+use App\Events\LocationUpdatedEvent;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +29,15 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 */
+
+Route::get('/realtime-locations', function () {
+    return view('realtime_locations');
+});
+
+Route::get('/test', function () {
+    broadcast(new LocationUpdatedEvent(1, 41.0082, 28.9784))->toOthers();
+    return "Event tetiklendi!";
+});
 
 Route::get('/cron-run/{token}', [CronController::class, 'run']);
 

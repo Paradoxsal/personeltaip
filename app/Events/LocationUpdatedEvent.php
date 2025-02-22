@@ -7,6 +7,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
 class LocationUpdatedEvent implements ShouldBroadcast
+
 {
     use SerializesModels;
 
@@ -24,26 +25,14 @@ class LocationUpdatedEvent implements ShouldBroadcast
         $this->longitude = $longitude;
     }
 
-    /**
-     * Yayınlanacak kanal bilgisini döndür.
-     */
     public function broadcastOn()
     {
-        return new Channel('location-updates');
+        return new Channel('mobilpersonel-development');
     }
 
-    // Eğer broadcastAs() metodunu kullanıyorsanız:
-    public function broadcastAs()
+    public function broadcastAs() // ✅ Event öneki tanımlandı
     {
-        return 'location.updates';
+        return 'location.updated'; // ✅ Doğru event adı
     }
-    public function broadcastWith()
-    {
-        \Log::info('Konum güncellendi:', [
-            'user_id' => $this->userId,
-            'lat' => $this->latitude,
-            'lng' => $this->longitude
-        ]);
-       
-    }
+
 }

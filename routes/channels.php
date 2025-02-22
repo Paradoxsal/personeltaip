@@ -17,6 +17,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('location-updates', function ($user) {
+Broadcast::channel('mobilpersonel-development', function ($user) {
     return true; // Herkes dinleyebilir
 });

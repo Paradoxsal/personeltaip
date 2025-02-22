@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\GeoLog;
 use Illuminate\Http\Request;
+use App\Events\LocationUpdatedEvent; // ✅ Event'ı ekleyin
 
 class GeoLogController extends Controller
 {
     public function store(Request $request)
     {
-        // "lat", "lng", "user_id" alalım
         $validated = $request->validate([
             'lat'     => 'required|numeric',
             'lng'     => 'required|numeric',
@@ -21,6 +21,13 @@ class GeoLogController extends Controller
             'lat'     => $validated['lat'],
             'lng'     => $validated['lng'],
         ]);
+
+        // 👇 Event'ı tetikle
+        broadcast(new LocationUpdatedEvent(
+            $validated['user_id'],
+            $validated['lat'],
+            $validated['lng']
+        ))->toOthers();
 
         return response()->json([
             'success' => true,

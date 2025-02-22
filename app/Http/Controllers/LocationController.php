@@ -38,16 +38,6 @@ class LocationController extends Controller
             'timestamp' => $validated['timestamp'] ?? now(),
         ]);
 
-        // Konum kaydı başarılı olduktan sonra event’i yayınlayalım:
-        event(new LocationUpdatedEvent(
-            $validated['user_id'],
-            $validated['latitude'],
-            $validated['longitude']
-        ));
-
-        return response()->json([
-            'status'   => 'success',
-            'location' => $location,
-        ]);
+        // Konum kaydı başarılı olduktan sonra event’i yayınlayalım:        
     }
 }
