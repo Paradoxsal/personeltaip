@@ -16,6 +16,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Factory as KreaitFactory;
 use Illuminate\Support\Facades\Log;
 
+
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
@@ -27,25 +28,29 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('notifications:check')->everyMinute(); //DATA BİLDİRİM
+        //  $schedule->command('workmanager:updatelogs')->everyMinute();
+
+        //$schedule->command('notifications:check')->everyMinute(); //DATA BİLDİRİM
 
         $schedule->command('workmanager:check')->everyMinute(); //WORKMANAGER PUSH
 
-        $schedule->command('auto:create-logs')->dailyAt('08:15'); //WORKMANAGER_LOGS TABLO OLUŞTURMA
+        //   $schedule->command('auto:create-logs')->dailyAt('08:15'); //WORKMANAGER_LOGS TABLO OLUŞTURMA
+
+       // $schedule->job(new \App\Jobs\UserActivityLogJob())->everyMinute();
 
         // Her dakika -> Bildirim tablosunu kontrol et
         $schedule->call(function () {
             $this->checkManualNotifications();
         })->everyFiveMinutes();
-        
+
         // (test amaçlı)
         $schedule->call(function () {
             $this->sendPauseTokensAt(); //WORKMANAGER PAUSE
-        })->dailyAt('23:19');
+        })->dailyAt('03:19');
 
         $schedule->call(function () {
             $this->sendResumeTokensAt(); //WORKMANAGER RESUME
-        })->dailyAt('23:01');
+        })->dailyAt('03:01');
 
         // 06:30 => "Günaydın" (HAFTA İÇİ)
         $schedule->call(function () {

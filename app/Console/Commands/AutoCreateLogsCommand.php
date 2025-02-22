@@ -9,8 +9,9 @@ use App\Models\WorkmanagerLog;
 use App\Models\WorkmanagerSituation;
 use App\Models\Holiday;       // Örnek tatil tablosu
 use App\Models\HalfdayRequest; // Örnek izin/rapor tablosu
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AutoCreateLogsCommand extends Command
+class AutoCreateLogsCommand extends Command implements ShouldQueue
 {
     /**
      * Bu komutun Artisan’da görünecek signature’ı:

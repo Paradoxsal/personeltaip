@@ -8,8 +8,9 @@ use App\Models\UserFcmToken;
 use Kreait\Firebase\Factory as KreaitFactory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CheckWorkManagerNotificationsCommand extends Command
+class CheckWorkManagerNotificationsCommand extends Command implements ShouldQueue
 {
     protected $signature = 'workmanager:check';
     protected $description = 'Checks the manual_notifications table for WorkManager commands (pause/resume) and sends them via FCM';

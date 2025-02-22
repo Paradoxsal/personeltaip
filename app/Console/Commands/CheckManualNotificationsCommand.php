@@ -10,8 +10,9 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Firebase\Messaging\ApnsConfig;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CheckManualNotificationsCommand extends Command
+class CheckManualNotificationsCommand extends Command implements ShouldQueue
 {
     protected $signature = 'notifications:check';
     protected $description = 'Checks manual_notifications table for data-only notifications (action=data) and sends them.';

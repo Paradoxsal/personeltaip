@@ -1,28 +1,37 @@
-window._ = require('lodash');
+import 'dotenv/config'; // .env dosyasını yükle
+import ws from 'ws';
+import Pusher from 'pusher-js';
+import Echo from 'laravel-echo';
 
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
+// WebSocket Polyfill
+global.WebSocket = ws.WebSocket;
 
-window.axios = require('axios');
+// Cluster kontrolü yap
+if (!process.env.MIX_PUSHER_APP_CLUSTER) {
+  throw new Error("MIX_PUSHER_APP_CLUSTER .env'de tanımlı değil!");
+}
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// Pusher instance'ı oluştur
+const pusherInstance = new Pusher(process.env.MIX_PUSHER_APP_KEY, {
+  cluster: process.env.MIX_PUSHER_APP_CLUSTER, // <--- BU SATIR ÇOK ÖNEMLİ
+  forceTLS: true,
+  wsHost: 'ws-' + process.env.MIX_PUSHER_APP_CLUSTER + '.pusher.com',
+  wsPort: 443
+});
 
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
+// Echo'yu başlat
+const echo = new Echo({
+  broadcaster: 'pusher',
+  client: pusherInstance
+});
 
-// import Echo from 'laravel-echo';
+console.log("Pusher bağlanıyor...");
 
-// window.Pusher = require('pusher-js');
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
+// Kanalı dinle
+echo.channel("location-updates")
+   .listen(".location.updated", (data) => {
+     console.log("Veri alındı:", data);
+   })
+   .error((error) => {
+     console.error("Hata:", error);
+   });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\UserLocation;
+use App\Events\LocationUpdatedEvent;
 
 class LocationController extends Controller
 {
@@ -36,6 +37,13 @@ class LocationController extends Controller
             // Flutter’dan gelen timestamp boş ise şimdiki zaman
             'timestamp' => $validated['timestamp'] ?? now(),
         ]);
+
+        // Konum kaydı başarılı olduktan sonra event’i yayınlayalım:
+        event(new LocationUpdatedEvent(
+            $validated['user_id'],
+            $validated['latitude'],
+            $validated['longitude']
+        ));
 
         return response()->json([
             'status'   => 'success',

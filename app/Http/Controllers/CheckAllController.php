@@ -61,12 +61,12 @@ class CheckAllController extends Controller
         $today = Carbon::today();
 
         //  Hafta sonu (istersen devre dışı)
-        if ($today->isWeekend()) {
+       /* if ($today->isWeekend()) {
             return response()->json([
                 'status' => 'blocked',
                 'reason' => 'weekend'
             ], 200);
-        }
+        }*/
 
         // 5b) Tatil
         $holiday = Holiday::where('status', 'active')

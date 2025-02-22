@@ -13,7 +13,10 @@
         "kreait/laravel-firebase": "dev-main",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.6"
+        "laravel/tinker": "^2.6",
+        "league/geotools": "^0.1.5",
+        "pusher/pusher-php-server": "^7.2",
+        "spatie/laravel-activitylog": "^4.10"
     },
     "require-dev": {
         "spatie/laravel-ignition": "^2.0",
