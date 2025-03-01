@@ -17,6 +17,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\UserController\UserEditController;
 use App\Http\Controllers\UserHourController;
+use App\Http\Controllers\WeekendControlController;
 use Illuminate\Support\Facades\Route;
 use App\Events\LocationUpdatedEvent;
 
@@ -58,6 +59,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('user-hours', UserHourController::class);
 
     Route::resource('system-settings', SystemSettingController::class);
+
+    Route::resource('weekned-settings', WeekendControlController::class);
 
     /*Route::match(['get', 'post'], '/users-manage', [UserManagementController::class, 'manage'])
         ->name('users.manage');*/
@@ -121,5 +124,3 @@ Route::group(['middleware' => 'guest'], function () {
 Route::get('/login', function () {
     return view('session/login-session');
 })->name('login');
-
-

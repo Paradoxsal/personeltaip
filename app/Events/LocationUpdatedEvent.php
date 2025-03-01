@@ -7,7 +7,6 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
 class LocationUpdatedEvent implements ShouldBroadcast
-
 {
     use SerializesModels;
 
@@ -15,9 +14,6 @@ class LocationUpdatedEvent implements ShouldBroadcast
     public $latitude;
     public $longitude;
 
-    /**
-     * Event oluşturulurken gönderilecek verileri al.
-     */
     public function __construct($userId, $latitude, $longitude)
     {
         $this->userId = $userId;
@@ -30,9 +26,17 @@ class LocationUpdatedEvent implements ShouldBroadcast
         return new Channel('mobilpersonel-development');
     }
 
-    public function broadcastAs() // ✅ Event öneki tanımlandı
+    public function broadcastAs()
     {
-        return 'location.updated'; // ✅ Doğru event adı
+        return 'location.updated';
     }
-
+    
+    public function broadcastWith()
+    {
+        return [
+            'userId'    => $this->userId,
+            'latitude'  => $this->latitude,
+            'longitude' => $this->longitude,
+        ];
+    }
 }

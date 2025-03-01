@@ -8,13 +8,14 @@ use App\Models\UserFcmToken;
 use App\Models\Holiday;
 use App\Models\HalfdayRequest;
 use Carbon\Carbon;
-use DB; // <-- system_settings için
+use DB;
+use App\Http\Controllers\WeekendControlController;
 
 class CheckAllController extends Controller
 {
     public function checkAll(Request $request)
     {
-        // 1) Kullanıcı
+        // 1) Kullanıcı kontrolü
         $user = $request->user();
         if (!$user) {
             return response()->json([
@@ -23,7 +24,7 @@ class CheckAllController extends Controller
             ], 200);
         }
 
-        // 2) FCM
+        // 2) FCM kontrolü
         $hasFcm = UserFcmToken::where('user_id', $user->id)->exists();
         if (!$hasFcm) {
             return response()->json([
@@ -32,7 +33,7 @@ class CheckAllController extends Controller
             ], 200);
         }
 
-        // 3) Ban
+        // 3) Ban kontrolü
         if ($user->banned == 1) {
             return response()->json([
                 'status' => 'blocked',
@@ -40,15 +41,13 @@ class CheckAllController extends Controller
             ], 200);
         }
 
-        // 4) Cihaz
+        // 4) Cihaz kontrolü
         $reqDevice = $request->input('device_info');
-        if ($reqDevice && $user->device_info) {
-            if ($reqDevice !== $user->device_info) {
-                return response()->json([
-                    'status' => 'blocked',
-                    'reason' => 'device_not_matched'
-                ], 200);
-            }
+        if ($reqDevice && $user->device_info && $reqDevice !== $user->device_info) {
+            return response()->json([
+                'status' => 'blocked',
+                'reason' => 'device_not_matched'
+            ], 200);
         }
         if ($user->cihaz_yetki != 1) {
             return response()->json([
@@ -57,18 +56,18 @@ class CheckAllController extends Controller
             ], 200);
         }
 
-        // Hafta sonu / Tatil / İzin
+        // --- Hafta sonu, tatil ve izin kontrolleri ---
         $today = Carbon::today();
 
-        //  Hafta sonu (istersen devre dışı)
-       /* if ($today->isWeekend()) {
+        // Hafta sonu kontrolü: Bugün hafta sonu ise, WeekendControlController fonksiyonunu kullan.
+        if ($today->isWeekend() && !WeekendControlController::isWeekendActiveForUser($user)) {
             return response()->json([
                 'status' => 'blocked',
                 'reason' => 'weekend'
             ], 200);
-        }*/
+        }
 
-        // 5b) Tatil
+        // 5) Tatil kontrolü
         $holiday = Holiday::where('status', 'active')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
@@ -80,16 +79,8 @@ class CheckAllController extends Controller
             ], 200);
         }
 
-        // 5c) İzin / rapor
+        // 6) İzin / Rapor kontrolü
         $currentHour = Carbon::now()->hour;
-        $izin = HalfdayRequest::where('user_id', $user->id)
-            ->whereIn('status', ['pending', 'approved'])
-            ->whereDate('date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        // 5c) İzin / rapor
         $izin = HalfdayRequest::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'approved'])
             ->whereDate('date', '<=', $today)
@@ -103,64 +94,49 @@ class CheckAllController extends Controller
 
             switch ($type) {
                 case 'morning':
-                    // Eğer saat henüz 12:00 olmamışsa => blocked
                     if ($currentHour < 12) {
                         return response()->json([
                             'status' => 'blocked',
                             'reason' => 'izin_or_rapor',
-                            'izin_detail' => 'morning', // ister gönder, ister gönderme
+                            'izin_detail' => 'morning'
                         ], 200);
                     }
-                    // 12:00 sonrası => engel yok => devam => break
                     break;
-
                 case 'afternoon':
-                    // Eğer saat 12:00 veya geçtiyse => blocked
                     if ($currentHour >= 12) {
                         return response()->json([
                             'status' => 'blocked',
                             'reason' => 'izin_or_rapor',
-                            'izin_detail' => 'afternoon',
+                            'izin_detail' => 'afternoon'
                         ], 200);
                     }
-                    // 12:00'dan önce => engel yok => break
                     break;
-
                 case 'full_day':
                 case 'rapor':
-                    // Tüm gün engelli
                     return response()->json([
                         'status' => 'blocked',
                         'reason' => 'izin_or_rapor',
-                        'izin_detail' => $type,  // 'full_day' veya 'rapor'
+                        'izin_detail' => $type
                     ], 200);
-
                 default:
-                    // normal -> break
                     break;
             }
         }
 
-
-
-
-        // 6) Versiyon kontrol => system_settings tablosu
+        // 7) Versiyon kontrolü (system_settings)
         $versionRow = DB::table('system_settings')
             ->where('setting_type', 'new_version')
             ->first();
 
-        if ($versionRow) {
-            // version_status: 'send' => yeni versiyon var
-            if ($versionRow->version_status === 'send') {
-                return response()->json([
-                    'status' => 'version_update',
-                    'version_link' => $versionRow->version_link ?? '',
-                    'version_desc' => $versionRow->version_desc ?? '',
-                ], 200);
-            }
+        if ($versionRow && $versionRow->version_status === 'send') {
+            return response()->json([
+                'status' => 'version_update',
+                'version_link' => $versionRow->version_link ?? '',
+                'version_desc' => $versionRow->version_desc ?? '',
+            ], 200);
         }
 
-        // 7) Her şey OK => normal
+        // 8) Tüm kontroller başarılı ise
         return response()->json([
             'status' => 'ok',
             'reason' => null

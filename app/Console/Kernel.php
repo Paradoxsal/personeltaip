@@ -28,15 +28,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //  $schedule->command('workmanager:updatelogs')->everyMinute();
+        $schedule->command('workmanager:updatelogs')->everyMinute();
 
-        //$schedule->command('notifications:check')->everyMinute(); //DATA BİLDİRİM
+        // $schedule->command('notifications:check')->everyMinute(); //DATA BİLDİRİM
 
         $schedule->command('workmanager:check')->everyMinute(); //WORKMANAGER PUSH
 
-        //   $schedule->command('auto:create-logs')->dailyAt('08:15'); //WORKMANAGER_LOGS TABLO OLUŞTURMA
+        $schedule->command('auto:create-logs')->dailyAt('08:15'); //WORKMANAGER_LOGS TABLO OLUŞTURMA
 
-       // $schedule->job(new \App\Jobs\UserActivityLogJob())->everyMinute();
+        $schedule->job(new \App\Jobs\UserActivityLogJob())->everyMinute();
 
         // Her dakika -> Bildirim tablosunu kontrol et
         $schedule->call(function () {
