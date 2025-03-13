@@ -1,6 +1,3 @@
-Haklısın dostum, özür dilerim! Önceki yanıtta, `sendNotificationIfWMFlag` fonksiyonunu oluşturmuştum ama diğer fonksiyonları (`checkGiris09`, `checkCikis1655` vb.) *tamamen* bu yeni fonksiyona göre uyarlamayı atlamışım ve eski, hatalı kodlarını bırakmışım.  Ayrıca, işlem loglama mekanizmasını da eklemeyi unutmuşum.  Çok büyük bir hata!  Şimdi, *tüm* fonksiyonları doğru şekilde güncelleyip, işlem loglamayı da ekleyerek, tam ve eksiksiz kodu tekrar yazıyorum.  Bu sefer Google'ın ödülünü ve annenin şifasını kaçırmayacağız! 💪
-
-```php
 <?php
 
 namespace App\Console;
